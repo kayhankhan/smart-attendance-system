@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Attendance System{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        @media print {
+            nav, .no-print { display: none; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    {% if session.user_id %}
+    <nav class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <img src="{{ url_for('static', filename='images/ned_logo.png') }}" alt="NED" class="h-10 w-10">
+                    <span class="text-lg sm:text-xl font-bold">Smart Attendance System</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-2 lg:space-x-4">
+                    {% if session.user_role in ['undergraduate', 'postgraduate'] %}
+                    <a href="{{ url_for('student.dashboard') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Dashboard</a>
+                    <a href="{{ url_for('student.scan_qr') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Scan QR</a>
+                    <a href="{{ url_for('student.daily_attendance') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Daily</a>
+                    <a href="{{ url_for('student.weekly_attendance') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Weekly</a>
+                    {% elif session.user_role == 'employee' %}
+                    <a href="{{ url_for('teacher.dashboard') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Dashboard</a>
+                    {% elif session.user_role == 'admin' %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Dashboard</a>
+                    <a href="{{ url_for('admin.list_users') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Users</a>
+                    <a href="{{ url_for('admin.create_subject') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Subjects</a>
+                    <a href="{{ url_for('admin.create_session') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Sessions</a>
+                    <a href="{{ url_for('admin.audit_logs') }}" class="hover:bg-indigo-700 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Audit Logs</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-600 px-2 lg:px-3 py-2 rounded text-sm lg:text-base">Logout</a>
+                </div>
+
+                <button id="mobileMenuButton" class="md:hidden flex items-center px-3 py-2 rounded hover:bg-indigo-700">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="mobileMenu" class="hidden md:hidden pb-3">
+                {% if session.user_role in ['undergraduate', 'postgraduate'] %}
+                <a href="{{ url_for('student.dashboard') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Dashboard</a>
+                <a href="{{ url_for('student.scan_qr') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Scan QR</a>
+                <a href="{{ url_for('student.daily_attendance') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Daily</a>
+                <a href="{{ url_for('student.weekly_attendance') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Weekly</a>
+                {% elif session.user_role == 'employee' %}
+                <a href="{{ url_for('teacher.dashboard') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Dashboard</a>
+                {% elif session.user_role == 'admin' %}
+                <a href="{{ url_for('admin.dashboard') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Dashboard</a>
+                <a href="{{ url_for('admin.list_users') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Users</a>
+                <a href="{{ url_for('admin.create_subject') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Subjects</a>
+                <a href="{{ url_for('admin.create_session') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Sessions</a>
+                <a href="{{ url_for('admin.audit_logs') }}" class="block hover:bg-indigo-700 px-3 py-2 rounded mb-1">Audit Logs</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="block bg-red-500 hover:bg-red-600 px-3 py-2 rounded">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="mb-3 sm:mb-4 p-3 sm:p-4 rounded-lg text-sm sm:text-base {% if category == 'success' %}bg-green-100 text-green-800{% elif category == 'danger' %}bg-red-100 text-red-800{% elif category == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-auto py-4 sm:py-6">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 text-center">
+            <p class="text-xs sm:text-sm">&copy; 2025 Smart Attendance System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

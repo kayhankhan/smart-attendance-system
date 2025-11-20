@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4 sm:mb-6 md:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Welcome, {{ user.full_name }}!</h1>
+        <p class="text-sm sm:text-base text-gray-600">Employee Dashboard</p>
+    </div>
+    <a href="{{ url_for('teacher.create_session') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base font-semibold whitespace-nowrap self-start">
+        ✚ Create Session
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">My Subjects</h2>
+    {% if subjects %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        {% for subject in subjects %}
+        <div class="border border-gray-200 rounded-lg p-3 sm:p-4">
+            <h3 class="font-bold text-base sm:text-lg break-words">{{ subject.name }}</h3>
+            <p class="text-xs sm:text-sm text-gray-600">{{ subject.code }}</p>
+            {% if subject.description %}
+            <p class="text-xs sm:text-sm text-gray-500 mt-2 break-words">{{ subject.description }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No subjects assigned yet. Contact admin to assign subjects.</p>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Today's Sessions</h2>
+    {% if today_sessions %}
+    <div class="space-y-3 sm:space-y-4">
+        {% for session in today_sessions %}
+        <div class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-base sm:text-lg break-words">{{ session.subject.name }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-600">{{ session.start_time.strftime('%I:%M %p') }} - {{ session.end_time.strftime('%I:%M %p') }}</p>
+                    {% if session.location_name %}
+                    <p class="text-xs sm:text-sm text-gray-500 break-words">📍 {{ session.location_name }}</p>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('teacher.view_session', session_id=session.id) }}" class="bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-indigo-700 text-xs sm:text-sm whitespace-nowrap self-start">
+                    View QR
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No sessions scheduled for today</p>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Upcoming Sessions</h2>
+    {% if upcoming_sessions %}
+    <div class="space-y-3 sm:space-y-4">
+        {% for session in upcoming_sessions %}
+        <div class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-base sm:text-lg break-words">{{ session.subject.name }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 break-words">{{ session.start_time.strftime('%A, %B %d at %I:%M %p') }}</p>
+                    {% if session.location_name %}
+                    <p class="text-xs sm:text-sm text-gray-500 break-words">📍 {{ session.location_name }}</p>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('teacher.view_session', session_id=session.id) }}" class="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-gray-700 text-xs sm:text-sm whitespace-nowrap self-start">
+                    View
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No upcoming sessions</p>
+    {% endif %}
+</div>
+{% endblock %}

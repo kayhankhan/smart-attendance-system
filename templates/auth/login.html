@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}NED Portal Login - Smart Attendance{% endblock %}
+
+{% block content %}
+<style>
+    .tab-button {
+        padding: 12px 24px;
+        border: none;
+        background: #e0e7ff;
+        color: #4b5563;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+    .tab-button:hover {
+        background: #c7d2fe;
+    }
+    .tab-button.active {
+        background: white;
+        color: #3b82f6;
+        border-bottom: 3px solid #3b82f6;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .captcha-container {
+        position: relative;
+        margin: 10px 0;
+    }
+    .captcha-image {
+        width: 100%;
+        max-width: 280px;
+        height: 80px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+    }
+    .change-code-btn {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-top: 8px;
+        transition: all 0.3s;
+    }
+    .change-code-btn:hover {
+        background: linear-gradient(135deg, #b91c1c, #991b1b);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+</style>
+
+<div class="min-h-[calc(100vh-8rem)] flex items-center justify-center py-4 px-2">
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+        <!-- NED University Header -->
+        <div class="bg-gradient-to-r from-blue-800 to-blue-900 p-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-3">
+                <img src="{{ url_for('static', filename='images/ned_logo.png') }}" alt="NED University" class="h-16 w-16">
+                <div class="text-left">
+                    <h2 class="text-white text-lg font-bold">NED UNIVERSITY</h2>
+                    <p class="text-blue-200 text-xs">OF ENGINEERING & TECHNOLOGY</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Portal Title -->
+        <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-4 text-center rounded-lg mx-4 -mt-2 shadow-lg">
+            <h1 class="text-xl sm:text-2xl font-bold">Smart Attendance System</h1>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 bg-gray-50 mt-4">
+            <button class="tab-button {% if role_type == 'employee' %}active{% endif %} flex-1 text-sm sm:text-base" onclick="switchTab('employee')" id="tab-employee">
+                Employee
+            </button>
+            <button class="tab-button {% if role_type == 'undergraduate' %}active{% endif %} flex-1 text-sm sm:text-base" onclick="switchTab('undergraduate')" id="tab-undergraduate">
+                Undergraduate
+            </button>
+            <button class="tab-button {% if role_type == 'postgraduate' %}active{% endif %} flex-1 text-sm sm:text-base" onclick="switchTab('postgraduate')" id="tab-postgraduate">
+                Postgraduate
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6 sm:p-8">
+            <!-- Employee Tab -->
+            <div id="content-employee" class="tab-content {% if role_type == 'employee' %}active{% endif %}">
+                <h2 class="text-xl sm:text-2xl font-bold text-red-600 mb-6 flex items-center justify-center">
+                    <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                    </svg>
+                    Employee
+                </h2>
+                <form method="POST" action="{{ url_for('login', role_type='employee') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="role_type" value="employee"/>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
+                            Portal ID
+                        </label>
+                        <input type="email" name="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter Portal ID">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Password
+                        </label>
+                        <input type="password" name="password" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter password">
+                        <p class="text-xs text-gray-500 mt-1">( Password is case sensitive )</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                            </svg>
+                            Image Code
+                        </label>
+                        <input type="text" name="captcha" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2"
+                               placeholder="Enter code from image">
+                        <div class="captcha-container flex flex-col items-center">
+                            <img id="captcha-img" src="{{ url_for('serve_captcha') }}" alt="CAPTCHA" class="captcha-image">
+                            <button type="button" onclick="refreshCaptcha()" class="change-code-btn">
+                                Change Code
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('forgot_password') }}" class="text-blue-600 hover:underline text-sm">Recover Password</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-lg">
+                        Login
+                    </button>
+                </form>
+            </div>
+
+            <!-- Undergraduate Tab -->
+            <div id="content-undergraduate" class="tab-content {% if role_type == 'undergraduate' %}active{% endif %}">
+                <h2 class="text-xl sm:text-2xl font-bold text-blue-600 mb-6 flex items-center justify-center">
+                    <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                    </svg>
+                    Undergraduate
+                </h2>
+                <form method="POST" action="{{ url_for('login', role_type='undergraduate') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="role_type" value="undergraduate"/>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
+                            Portal ID
+                        </label>
+                        <input type="email" name="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter Portal ID">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Password
+                        </label>
+                        <input type="password" name="password" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter password">
+                        <p class="text-xs text-gray-500 mt-1">( Password is case sensitive )</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                            </svg>
+                            Image Code
+                        </label>
+                        <input type="text" name="captcha" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2"
+                               placeholder="Enter code from image">
+                        <div class="captcha-container flex flex-col items-center">
+                            <img id="captcha-img-ug" src="{{ url_for('serve_captcha') }}" alt="CAPTCHA" class="captcha-image">
+                            <button type="button" onclick="refreshCaptcha()" class="change-code-btn">
+                                Change Code
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('forgot_password') }}" class="text-blue-600 hover:underline text-sm">Recover Password</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-lg">
+                        Login
+                    </button>
+                </form>
+            </div>
+
+            <!-- Postgraduate Tab -->
+            <div id="content-postgraduate" class="tab-content {% if role_type == 'postgraduate' %}active{% endif %}">
+                <h2 class="text-xl sm:text-2xl font-bold text-purple-600 mb-6 flex items-center justify-center">
+                    <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Postgraduate
+                </h2>
+                <form method="POST" action="{{ url_for('login', role_type='postgraduate') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="role_type" value="postgraduate"/>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
+                            Portal ID
+                        </label>
+                        <input type="email" name="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter Portal ID">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Password
+                        </label>
+                        <input type="password" name="password" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter password">
+                        <p class="text-xs text-gray-500 mt-1">( Password is case sensitive )</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center text-blue-700 font-semibold mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                            </svg>
+                            Image Code
+                        </label>
+                        <input type="text" name="captcha" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2"
+                               placeholder="Enter code from image">
+                        <div class="captcha-container flex flex-col items-center">
+                            <img id="captcha-img-pg" src="{{ url_for('serve_captcha') }}" alt="CAPTCHA" class="captcha-image">
+                            <button type="button" onclick="refreshCaptcha()" class="change-code-btn">
+                                Change Code
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('forgot_password') }}" class="text-blue-600 hover:underline text-sm">Recover Password</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-lg">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 text-center">
+            <p class="text-xs text-gray-600">
+                <strong>Powered by IT Department</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById('content-' + tabName).classList.add('active');
+    
+    // Add active class to selected button
+    document.getElementById('tab-' + tabName).classList.add('active');
+    
+    // Update URL without reload
+    window.history.pushState({}, '', '/login/' + tabName);
+}
+
+function refreshCaptcha() {
+    fetch('/refresh_captcha')
+        .then(response => response.json())
+        .then(data => {
+            // Update all CAPTCHA images with timestamp to prevent caching
+            const captchaImages = document.querySelectorAll('[id^="captcha-img"]');
+            captchaImages.forEach(img => {
+                img.src = '{{ url_for("serve_captcha") }}?' + data.timestamp;
+            });
+        })
+        .catch(error => console.error('Error refreshing CAPTCHA:', error));
+}
+</script>
+{% endblock %}

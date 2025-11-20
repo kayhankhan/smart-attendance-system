@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Attendance{% endblock %}
+
+{% block content %}
+<div class="mb-4 sm:mb-6 md:mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Weekly Attendance</h1>
+    <p class="text-sm sm:text-base text-gray-600">{{ summary.week_start.strftime('%B %d') }} - {{ summary.week_end.strftime('%B %d, %Y') }}</p>
+</div>
+
+<div class="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
+    <div class="text-center">
+        <p class="text-4xl sm:text-5xl md:text-6xl font-bold {% if summary.percentage >= 90 %}text-green-600{% elif summary.percentage >= 75 %}text-yellow-600{% else %}text-red-600{% endif %} mb-2">
+            {{ "%.1f"|format(summary.percentage) }}%
+        </p>
+        <p class="text-sm sm:text-base text-gray-600">{{ summary.attended }} attended / {{ summary.missed }} missed / {{ summary.total_sessions }} total</p>
+    </div>
+</div>
+
+{% if summary.missed_sessions %}
+<div class="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Missed Sessions</h2>
+    
+    <div class="space-y-3 sm:space-y-4">
+        {% for session in summary.missed_sessions %}
+        <div class="border border-red-200 rounded-lg p-3 sm:p-4 bg-red-50">
+            <h3 class="font-bold text-base sm:text-lg break-words">{{ session.subject.name }}</h3>
+            <p class="text-xs sm:text-sm text-gray-600">{{ session.subject.code }}</p>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                {{ session.start_time.strftime('%A, %B %d at %I:%M %p') }}
+            </p>
+            {% if session.location_name %}
+            <p class="text-xs sm:text-sm text-gray-500 break-words">📍 {{ session.location_name }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6">
+    <p class="text-green-600 text-center text-lg sm:text-xl font-medium py-6 sm:py-8">🎉 Perfect attendance this week!</p>
+</div>
+{% endif %}
+{% endblock %}

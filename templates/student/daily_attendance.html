@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Attendance{% endblock %}
+
+{% block content %}
+<div class="mb-4 sm:mb-6 md:mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Daily Attendance</h1>
+    <p class="text-sm sm:text-base text-gray-600">{{ date.strftime('%A, %B %d, %Y') }}</p>
+</div>
+
+<div class="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
+    <div class="text-center">
+        <p class="text-4xl sm:text-5xl md:text-6xl font-bold {% if summary.percentage >= 90 %}text-green-600{% elif summary.percentage >= 75 %}text-yellow-600{% else %}text-red-600{% endif %} mb-2">
+            {{ "%.0f"|format(summary.percentage) }}%
+        </p>
+        <p class="text-sm sm:text-base text-gray-600">{{ summary.attended }} attended / {{ summary.missed }} missed / {{ summary.total_sessions }} total</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Sessions</h2>
+    
+    {% if summary.sessions %}
+    <div class="space-y-3 sm:space-y-4">
+        {% for item in summary.sessions %}
+        <div class="border border-gray-200 rounded-lg p-3 sm:p-4 {% if item.attended %}bg-green-50{% else %}bg-red-50{% endif %}">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-base sm:text-lg break-words">{{ item.session.subject.name }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-600">{{ item.session.subject.code }}</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                        {{ item.session.start_time.strftime('%I:%M %p') }} - {{ item.session.end_time.strftime('%I:%M %p') }}
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    {% if item.attended %}
+                    <span class="inline-block bg-green-500 text-white text-xs px-3 py-1 rounded-full whitespace-nowrap">✓ Present</span>
+                    {% else %}
+                    <span class="inline-block bg-red-500 text-white text-xs px-3 py-1 rounded-full whitespace-nowrap">✗ Absent</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No sessions for this day</p>
+    {% endif %}
+</div>
+{% endblock %}
