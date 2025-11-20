@@ -377,3 +377,4 @@ Built with Flask, SQLAlchemy, html5-qrcode, Leaflet, and TailwindCSS.
 **Need Help?** Check logs, review code comments, or consult Flask documentation.
 
 **Security Notice**: Demo passwords should be changed immediately in production environments.
+# smart-attendance-system
